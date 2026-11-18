@@ -1,0 +1,20 @@
+version: 2.1
+jobs:
+  test:
+    docker:
+      - image: cimg/python:3.12
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: python -m pip install --upgrade pip pytest && python -m pip install -e .
+      - run:
+          name: Compile
+          command: python -m compileall -q office_sanitizer tests
+      - run:
+          name: Run tests
+          command: python -m pytest -q
+workflows:
+  build-test:
+    jobs:
+      - test
