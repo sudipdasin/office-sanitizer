@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "office-sanitizer"
+version = "1.0.0"
+description = "Offline, fail-closed OOXML metadata sanitizer with macro binary preservation"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+[project.scripts]
+office-sanitizer = "office_sanitizer.__main__:main"
+[tool.pytest.ini_options]
+testpaths = ["tests"]
