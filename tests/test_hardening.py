@@ -69,3 +69,16 @@ def test_default_opc_namespaces_remain_compatible(tmp_path):
             raw = z.read(name)
             assert b'<ns0:' not in raw
             assert b'xmlns="http://schemas.openxmlformats.org/' in raw
+
+
+def test_public_result_omits_sensitive_vba_member_names(tmp_path):
+    src, dst = tmp_path / 'source.docm', tmp_path / 'clean.docm'
+    fixture(src, macro=True)
+    with zipfile.ZipFile(src, 'a') as z:
+        z.writestr('word/private-user@example.com/vbaProject.bin', b'secret-vba')
+    result = sanitize(src, dst)
+    assert result.verified
+    public = result.public_dict()
+    assert 'private-user@example.com' not in str(public)
+    assert public['macro_project_count'] == 2
+    assert public['macro_projects_preserved']
