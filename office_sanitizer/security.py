@@ -8,6 +8,8 @@ from pathlib import PurePosixPath
 MAX_MEMBERS = 10000
 MAX_TOTAL = 512 * 1024 * 1024
 MAX_RATIO = 200
+MAX_XML_MEMBER = 32 * 1024 * 1024
+MAX_XML_TOTAL = 128 * 1024 * 1024
 
 
 def validate_package(z: zipfile.ZipFile) -> None:
@@ -20,8 +22,13 @@ def validate_package(z: zipfile.ZipFile) -> None:
         raise ValueError('duplicate package entries')
     if '[Content_Types].xml' not in names or '_rels/.rels' not in names:
         raise ValueError('missing OPC package control files')
+    xml_total = 0
     for info in infos:
         name = info.filename
+        if name.endswith('.xml') or name.endswith('.rels') or name == '[Content_Types].xml':
+            xml_total += info.file_size
+            if info.file_size > MAX_XML_MEMBER or xml_total > MAX_XML_TOTAL:
+                raise ValueError('XML inspection limits exceeded')
         path = PurePosixPath(name)
         if (not name or name.startswith('/') or '\\' in name or '\x00' in name or
                 ':' in name or path.is_absolute() or any(part in ('.', '..') for part in name.split('/'))):
