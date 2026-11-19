@@ -1,4 +1,4 @@
-# Office Sanitizer Community v1.0.0
+# Office Sanitizer Community v2.0.0 alpha 1
 
 Conservative, offline, **metadata-only** sanitization for unencrypted OOXML Office files. Supported `.docx .docm .dotx .dotm .xlsx .xlsm .xltx .xltm .pptx .pptm .potx .potm .ppsx .ppsm`. VBA binaries are preserved byte-for-byte; macro source and embedded sensitive data are **not cleaned**.
 
@@ -11,3 +11,14 @@ python -m pytest -q
 ```
 
 Output statuses say `metadata_cleaned_content_unreviewed`; this means only selected metadata was removed. CircleCI config in `.circleci/config.yml`; connect the repository in CircleCI to run it.
+
+## v2 risk inspection (alpha)
+
+```bash
+python -m office_sanitizer --audit document.docm
+python -m office_sanitizer -o ./sanitized document.docm
+```
+
+`--audit` is read-only, emits counts and package part names (not extracted sensitive values), and fails closed on corrupt or unexpectedly large packages. It flags VBA, embedded parts, collaboration, hidden content, tracked changes, external relationships, email addresses, and candidate AWS access keys. **It is a heuristic risk inventory, not a forensic or complete content scanner.** Text split across XML elements, images, legacy/OLE, encrypted or non-OOXML formats, and secrets hidden in VBA binary streams may not be detected. No scan result certifies safe sharing.
+
+Run `python -m pytest -q` before deploying. This is a pre-release and must not be used as a classified document declassification tool.
