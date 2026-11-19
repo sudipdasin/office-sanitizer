@@ -1,2 +1,2 @@
-"""Office Sanitizer v1.0.0: cautious offline OOXML sanitization."""
-__version__ = "1.0.0"
+"""Office Sanitizer: cautious offline OOXML metadata cleaning and audit."""
+__version__ = "2.0.0a1"
