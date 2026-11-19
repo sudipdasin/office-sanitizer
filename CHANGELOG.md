@@ -14,3 +14,9 @@
 - Add independent, read-only package verification with macro/content hashes, package relationship checks, and explicit incomplete/failed status.
 - Refuse existing output and digitally signed packages to avoid destructive replacement and signature invalidation.
 - Add seven regression tests; 19 total passed locally with Python 3.13. CI and real Office application checks are not yet verified.
+
+## 3.0.0a1 — 2026-11-19
+- Add fail-closed guarded workflow: preflight heuristic audit, metadata-only cleanup, independent package verification and postflight scan.
+- Block macro-containing, embedded-object, comment, tracked-change, hidden-content, external-link, and detected PII indicator documents in guarded mode.
+- Add `--guarded` CLI and five regression tests, bringing locally executed suite to 24 tests.
+- Not a content redactor or classification clearance tool; hosted CI and Office app compatibility not verified.
