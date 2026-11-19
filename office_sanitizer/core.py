@@ -74,6 +74,7 @@ def _rewrite_xml(name: str, data: bytes, removed: set[str]) -> bytes:
         for node in list(root):
             if node.tag == f'{{{CONTENT_NS}}}Override' and node.get('PartName', '').lstrip('/') in removed:
                 root.remove(node)
+        ET.register_namespace('', CONTENT_NS)
         return ET.tostring(root, encoding='utf-8', xml_declaration=True)
     if name.endswith('.rels'):
         root = ET.fromstring(data)
@@ -81,6 +82,7 @@ def _rewrite_xml(name: str, data: bytes, removed: set[str]) -> bytes:
             if node.tag == f'{{{RELS_NS}}}Relationship' and node.get('TargetMode') != 'External':
                 if _relationship_target(name, node.get('Target', '').split('#')[0]) in removed:
                     root.remove(node)
+        ET.register_namespace('', RELS_NS)
         return ET.tostring(root, encoding='utf-8', xml_declaration=True)
     return data
 
