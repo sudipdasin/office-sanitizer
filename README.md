@@ -37,3 +37,5 @@ python -m office_sanitizer --guarded -o ./review-copies document.docx
 Guarded mode performs a read-only preflight, blocks detected risks other than removable `docProps` metadata, writes a **metadata-only** copy when permitted, independently compares package contents, and rescans the output. A successful result is **`metadata_only_copy_requires_human_review`**, never cleared or safe to share. Macro-enabled files with VBA project binaries are blocked by guarded mode; the existing non-guarded metadata-only mode can preserve those binaries but cannot sanitize their source. Blocked files are not cleaned and originals are unchanged.
 
 **Known limitations:** This does not redact classified content, names, arbitrary PII, scanned images, VBA code, unrecognized embedded objects, or all metadata. This is not suitable for unreviewed release of sensitive documents. The risk scanner is heuristic; absence of findings is not clearance. Real Microsoft Office/LibreOffice compatibility is not yet validated.
+
+Default audit reports now use file indexes and hashed package-part identifiers rather than potentially sensitive filenames.
