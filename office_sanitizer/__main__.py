@@ -29,10 +29,10 @@ def main():
     if args.output is not None and not args.audit:
         args.output.mkdir(parents=True, exist_ok=True)
     complete = True
-    for path in args.files:
+    for index, path in enumerate(args.files, 1):
         if args.audit:
             report = scan_ooxml(path)
-            print(json.dumps({"file_name": path.name, **report.as_dict()}))
+            print(json.dumps({"file_index": index, **report.as_dict()}))
             complete = complete and report.status != "incomplete"
         elif args.guarded:
             result = guarded_sanitize(path, args.output / path.name)
@@ -40,7 +40,7 @@ def main():
             complete = complete and result.status == "metadata_only_copy_requires_human_review"
         else:
             result = sanitize(path, args.output / path.name)
-            print(json.dumps({"file_name": path.name, **result.public_dict()}))
+            print(json.dumps({"file_index": index, **result.public_dict()}))
             complete = complete and result.status == "metadata_cleaned_content_unreviewed"
     return 0 if complete else 1
 
