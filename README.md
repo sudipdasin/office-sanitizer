@@ -39,3 +39,9 @@ Guarded mode performs a read-only preflight, blocks detected risks other than re
 **Known limitations:** This does not redact classified content, names, arbitrary PII, scanned images, VBA code, unrecognized embedded objects, or all metadata. This is not suitable for unreviewed release of sensitive documents. The risk scanner is heuristic; absence of findings is not clearance. Real Microsoft Office/LibreOffice compatibility is not yet validated.
 
 Default audit reports now use file indexes and hashed package-part identifiers rather than potentially sensitive filenames.
+
+## v3.0.0 alpha 2 — hardened source snapshot
+
+The pre-release now rejects malicious ZIP paths, symlinks, unsupported/encrypted ZIP members and signed packages rather than attempting unsafe rewriting. Audits flag signed packages for review. Default reports conceal macro archive filenames. OOXML relationships and content-type manifests retain their original default namespace, fixing a LibreOffice interoperability failure.
+
+**Verification scope:** 32 tests and bytecode compilation passed in the locally assembled Python 3.13 project. One generated DOCX was cleaned in guarded mode, independently package-verified and rendered by LibreOffice 25.2; rendered text matched the original. This smoke test does not imply support for all Office versions, confidential redaction, VBA sanitization or safe document distribution. No hosted CircleCI run or Microsoft Office test is claimed.
