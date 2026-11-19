@@ -50,3 +50,15 @@ def test_guarded_rejects_invalid_input(tmp_path):
     result = guarded_sanitize(src, dst)
     assert result.status == 'blocked' and not dst.exists()
     assert 'preflight_incomplete' in result.reason_codes
+
+
+def test_audit_opaque_package_part_names(tmp_path):
+    from office_sanitizer.audit import scan_ooxml
+    src = tmp_path / 'private.docx'
+    fixture(src)
+    with zipfile.ZipFile(src, 'a') as z:
+        z.writestr('word/embeddings/secret-person-name.bin', b'embedded')
+    report = scan_ooxml(src).as_dict()
+    assert report['findings']['embedded_objects'] == 1
+    assert 'secret-person-name' not in str(report)
+    assert all(part.startswith('part:') for part in report['flagged_parts'])
