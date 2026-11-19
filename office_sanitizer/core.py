@@ -129,6 +129,7 @@ def sanitize(source: str | Path, output: str | Path) -> Result:
                         data = _rewrite_xml(info.filename, data, to_remove)
                     zout.writestr(info, data)
         with zipfile.ZipFile(temp_name) as verified:
+            validate_package(verified)
             if verified.testzip() is not None:
                 raise ValueError('Output ZIP failed CRC verification')
             remaining = set(verified.namelist())
@@ -147,7 +148,13 @@ def sanitize(source: str | Path, output: str | Path) -> Result:
                         target = _relationship_target(name, rel.get('Target', '').split('#')[0])
                         if target in to_remove:
                             raise ValueError('Dangling relationship to removed metadata')
-        os.replace(temp_name, dst)
+        # Independent structural verification must pass before publication.
+        from .verify import verify_output
+        if verify_output(src, temp_name).status != 'package_integrity_verified_content_unreviewed':
+            raise ValueError('Independent package verification failed')
+        # Atomic non-overwriting publication; never replace a concurrently-created file.
+        os.link(temp_name, dst)
+        os.unlink(temp_name)
         temp_name = None
         result.output = str(dst)
         result.removed = sorted(to_remove)
