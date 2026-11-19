@@ -21,3 +21,11 @@
 - Add `--guarded` CLI and five regression tests, bringing locally executed suite to 24 tests.
 - Not a content redactor or classification clearance tool; hosted CI and Office app compatibility not verified.
 - Harden default reports with filename indexes and opaque package-part IDs; 25 local regression tests passed.
+
+## 3.0.0a2 — 2026-11-19
+- Apply shared hostile-ZIP checks to sanitizer, audit, and output verifier.
+- Reject path traversal, symlinks, encrypted/unsupported members; flag signatures in audits.
+- Hide macro member paths in default reports and suppress exception detail leaks.
+- Preserve default OPC XML namespaces to fix a real-world LibreOffice opening failure.
+- Add seven regression tests (32 local tests passed, Python 3.13); successful one-DOCX LibreOffice 25.2 rendering and content comparison.
+- Hosted CI, Microsoft Office and full format compatibility remain unverified.
