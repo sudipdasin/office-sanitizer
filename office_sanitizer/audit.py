@@ -6,6 +6,7 @@ import hashlib
 from xml.etree import ElementTree as ET
 import re
 import zipfile
+from .security import validate_package, contains_signatures
 
 REL_NS = "http://schemas.openxmlformats.org/package/2006/relationships"
 SENSITIVE = {
@@ -35,15 +36,11 @@ def scan_ooxml(path: str | Path) -> Audit:
     try:
         with zipfile.ZipFile(path) as archive:
             infos = archive.infolist()
-            if len(infos) > 10000 or sum(i.file_size for i in infos) > 512 * 1024 * 1024:
-                raise ValueError("package size limit")
+            validate_package(archive)
             names = {i.filename for i in infos}
-            if len(names) != len(infos):
-                raise ValueError("duplicate package entries")
-            if "[Content_Types].xml" not in names or "_rels/.rels" not in names:
-                raise ValueError("not an OOXML package")
-            if archive.testzip() is not None:
-                raise ValueError("invalid member CRC")
+            if contains_signatures(names):
+                counts["digitally_signed_package"] += 1
+                flagged.update(n for n in names if '_xmlsignatures/' in n.lower())
             for info in infos:
                 name = info.filename
                 low = name.lower()
