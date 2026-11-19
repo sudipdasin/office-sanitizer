@@ -12,7 +12,8 @@ import hashlib
 import posixpath
 import zipfile
 
-from .core import META_NAMES, CONTENT_NS, RELS_NS, _safe_package
+from .core import META_NAMES, CONTENT_NS, RELS_NS
+from .security import validate_package, contains_signatures
 
 
 @dataclass
@@ -54,8 +55,10 @@ def verify_output(original: str | Path, cleaned: str | Path) -> Verification:
     result = Verification()
     try:
         with zipfile.ZipFile(original) as src, zipfile.ZipFile(cleaned) as dst:
-            _safe_package(src.infolist())
-            _safe_package(dst.infolist())
+            validate_package(src)
+            validate_package(dst)
+            if contains_signatures(set(src.namelist()) | set(dst.namelist())):
+                raise ValueError("signed package: cannot assert validity after rewriting")
             if src.testzip() is not None or dst.testzip() is not None:
                 raise ValueError('ZIP integrity failure')
             a = set(src.namelist())
