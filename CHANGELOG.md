@@ -29,3 +29,11 @@
 - Preserve default OPC XML namespaces to fix a real-world LibreOffice opening failure.
 - Add seven regression tests (32 local tests passed, Python 3.13); successful one-DOCX LibreOffice 25.2 rendering and content comparison.
 - Hosted CI, Microsoft Office and full format compatibility remain unverified.
+
+## 3.0.0a3 — 2026-11-19
+- Verify temporary sanitized packages independently before they become visible at the destination.
+- Reject concurrent destination creation with non-overwriting hard-link publication.
+- Reject oversized XML parts and aggregate XML payloads.
+- Add seven regression/integration tests: 39 tests passed locally (Python 3.13).
+- Generated Word, Excel, and PowerPoint samples reopened via their Python Office libraries and converted successfully to PDF by LibreOffice.
+- Hosted CircleCI, Microsoft Office compatibility, full-content redaction, VBA source sanitization, and signed installers remain unverified.
