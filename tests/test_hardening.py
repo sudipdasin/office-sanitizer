@@ -58,3 +58,14 @@ def test_verification_rejects_signature_in_original(tmp_path):
             if info.filename != 'docProps/core.xml':
                 w.writestr(info, z.read(info.filename))
     assert verify_output(src, dst).status == 'failed'
+
+
+def test_default_opc_namespaces_remain_compatible(tmp_path):
+    src, dst = tmp_path / 'source.docx', tmp_path / 'clean.docx'
+    fixture(src)
+    assert sanitize(src, dst).verified
+    with zipfile.ZipFile(dst) as z:
+        for name in ('[Content_Types].xml', '_rels/.rels'):
+            raw = z.read(name)
+            assert b'<ns0:' not in raw
+            assert b'xmlns="http://schemas.openxmlformats.org/' in raw
