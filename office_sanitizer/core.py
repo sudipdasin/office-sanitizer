@@ -90,8 +90,8 @@ def sanitize(source: str | Path, output: str | Path) -> Result:
     if src.suffix.lower() not in SUPPORTED:
         result.warnings.append('Unsupported format: requires manual review; no output created')
         return result
-    if not src.is_file() or src.resolve() == dst.resolve():
-        result.warnings.append('Source unavailable or output would overwrite source')
+    if not src.is_file() or src.is_symlink() or dst.is_symlink() or dst.exists() or src.resolve() == dst.resolve():
+        result.warnings.append('Source unavailable, symlink, or output already exists')
         return result
     temp_name = None
     try:
@@ -103,6 +103,8 @@ def sanitize(source: str | Path, output: str | Path) -> Result:
             names = set(zin.namelist())
             if '[Content_Types].xml' not in names or '_rels/.rels' not in names:
                 raise ValueError('Invalid Office package: missing package manifest/relationships')
+            if any(n.lower().startswith('_xmlsignatures/') or '/_xmlsignatures/' in n.lower() for n in names):
+                raise ValueError('Digitally signed package: metadata rewrite would invalidate signatures')
             ET.fromstring(zin.read('[Content_Types].xml'))
             ET.fromstring(zin.read('_rels/.rels'))
             to_remove = META_NAMES & names
