@@ -2,6 +2,7 @@
 from collections import Counter
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
+import hashlib
 from xml.etree import ElementTree as ET
 import re
 import zipfile
@@ -90,5 +91,6 @@ def scan_ooxml(path: str | Path) -> Audit:
         out.status = "incomplete"
         out.warnings.append(f"Inspection failed ({type(exc).__name__}); do not release this file")
     out.findings = dict(sorted(counts.items()))
-    out.flagged_parts = sorted(flagged)
+    # Filenames inside the archive may contain sensitive data; emit opaque IDs.
+    out.flagged_parts = sorted("part:" + hashlib.sha256(n.encode("utf-8")).hexdigest()[:16] for n in flagged)
     return out
