@@ -13,6 +13,7 @@ import tempfile
 import zipfile
 from dataclasses import asdict, dataclass, field
 from xml.etree import ElementTree as ET
+from .security import validate_package, contains_signatures
 
 SUPPORTED = {'.docx', '.docm', '.dotx', '.dotm', '.xlsx', '.xlsm', '.xltx',
              '.xltm', '.pptx', '.pptm', '.potx', '.potm', '.ppsx', '.ppsm'}
@@ -97,13 +98,13 @@ def sanitize(source: str | Path, output: str | Path) -> Result:
     try:
         with zipfile.ZipFile(src) as zin:
             infos = zin.infolist()
-            _safe_package(infos)
+            validate_package(zin)
             if zin.testzip() is not None:
                 raise ValueError('Corrupt ZIP member')
             names = set(zin.namelist())
             if '[Content_Types].xml' not in names or '_rels/.rels' not in names:
                 raise ValueError('Invalid Office package: missing package manifest/relationships')
-            if any(n.lower().startswith('_xmlsignatures/') or '/_xmlsignatures/' in n.lower() for n in names):
+            if contains_signatures(names):
                 raise ValueError('Digitally signed package: metadata rewrite would invalidate signatures')
             ET.fromstring(zin.read('[Content_Types].xml'))
             ET.fromstring(zin.read('_rels/.rels'))
@@ -153,7 +154,7 @@ def sanitize(source: str | Path, output: str | Path) -> Result:
             result.warnings.append('VBA binary projects preserved byte-for-byte; secrets within VBA are NOT removed')
         return result
     except (OSError, ValueError, ET.ParseError, zipfile.BadZipFile, RuntimeError) as exc:
-        result.warnings.append(f'Sanitization failed: {type(exc).__name__}: {exc}')
+        result.warnings.append(f'Sanitization failed ({type(exc).__name__}); input requires manual review')
         return result
     finally:
         if temp_name is not None and os.path.exists(temp_name):
