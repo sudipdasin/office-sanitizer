@@ -8,7 +8,7 @@ import zipfile
 
 REL_NS = "http://schemas.openxmlformats.org/package/2006/relationships"
 SENSITIVE = {
-    "email_addresses": re.compile(r"(?<![\\w.@])[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}(?![\\w.-])"),
+    "email_addresses": re.compile(r"(?<![\w.@])[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}(?![\w.-])"),
     "cloud_access_key_candidates": re.compile(r"(?<![A-Za-z0-9])AKIA[0-9A-Z]{16}(?![A-Za-z0-9])"),
 }
 MAX_XML_BYTES = 32 * 1024 * 1024
