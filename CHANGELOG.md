@@ -20,3 +20,4 @@
 - Block macro-containing, embedded-object, comment, tracked-change, hidden-content, external-link, and detected PII indicator documents in guarded mode.
 - Add `--guarded` CLI and five regression tests, bringing locally executed suite to 24 tests.
 - Not a content redactor or classification clearance tool; hosted CI and Office app compatibility not verified.
+- Harden default reports with filename indexes and opaque package-part IDs; 25 local regression tests passed.
