@@ -37,7 +37,11 @@ class Result:
     macro_sha256_after: dict[str, str] = field(default_factory=dict)
 
     def public_dict(self) -> dict:
-        return {k: v for k, v in asdict(self).items() if k not in ('source', 'output')}
+        report = {k: v for k, v in asdict(self).items()
+                  if k not in ('source', 'output', 'macro_sha256_before', 'macro_sha256_after')}
+        report['macro_project_count'] = len(self.macro_sha256_before)
+        report['macro_projects_preserved'] = self.macro_sha256_before == self.macro_sha256_after
+        return report
 
 
 def _safe_package(infos: list[zipfile.ZipInfo]) -> None:
