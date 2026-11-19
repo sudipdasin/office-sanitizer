@@ -45,3 +45,9 @@ Default audit reports now use file indexes and hashed package-part identifiers r
 The pre-release now rejects malicious ZIP paths, symlinks, unsupported/encrypted ZIP members and signed packages rather than attempting unsafe rewriting. Audits flag signed packages for review. Default reports conceal macro archive filenames. OOXML relationships and content-type manifests retain their original default namespace, fixing a LibreOffice interoperability failure.
 
 **Verification scope:** 32 tests and bytecode compilation passed in the locally assembled Python 3.13 project. One generated DOCX was cleaned in guarded mode, independently package-verified and rendered by LibreOffice 25.2; rendered text matched the original. This smoke test does not imply support for all Office versions, confidential redaction, VBA sanitization or safe document distribution. No hosted CircleCI run or Microsoft Office test is claimed.
+
+## 3.0.0 alpha 3: fail-closed publication and cross-format smoke tests
+
+The metadata-only cleaner independently validates the temporary sanitized package before publishing it and uses non-overwriting hard-link creation. Excessive XML members are rejected. These safeguards **do not remove sensitive document body content, VBA source, hidden content or classification markings**. No scan or output certifies a document for release.
+
+New tests include real generated Word (`python-docx`), Excel (`openpyxl`), and PowerPoint (`python-pptx`) document round trips. Install `pytest python-docx openpyxl python-pptx` and run `python -m pytest -q`. One local LibreOffice smoke run also rendered the cleaned files as PDFs; Microsoft Office and broader compatibility remain unverified. Hosted CircleCI execution must be checked separately.
