@@ -27,3 +27,13 @@ Run `python -m pytest -q` before deploying. This is a pre-release and must not b
 Metadata-only cleaning remains narrow; it does not redact document content or VBA source.
 The sanitizer now refuses to overwrite existing outputs or modify digitally signed OOXML packages.
 Use `python -m office_sanitizer example.docm --verify-output sanitized/example.docm` to compare original and output part hashes and package relationships independently. A positive result means **package integrity only**, not confidentiality clearance. Open real documents in Office and review their content separately.
+
+## v3.0.0 alpha 1 — guarded workflow (pre-release)
+
+```bash
+python -m office_sanitizer --guarded -o ./review-copies document.docx
+```
+
+Guarded mode performs a read-only preflight, blocks detected risks other than removable `docProps` metadata, writes a **metadata-only** copy when permitted, independently compares package contents, and rescans the output. A successful result is **`metadata_only_copy_requires_human_review`**, never cleared or safe to share. Macro-enabled files with VBA project binaries are blocked by guarded mode; the existing non-guarded metadata-only mode can preserve those binaries but cannot sanitize their source. Blocked files are not cleaned and originals are unchanged.
+
+**Known limitations:** This does not redact classified content, names, arbitrary PII, scanned images, VBA code, unrecognized embedded objects, or all metadata. This is not suitable for unreviewed release of sensitive documents. The risk scanner is heuristic; absence of findings is not clearance. Real Microsoft Office/LibreOffice compatibility is not yet validated.
