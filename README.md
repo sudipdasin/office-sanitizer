@@ -22,3 +22,8 @@ python -m office_sanitizer -o ./sanitized document.docm
 `--audit` is read-only, emits counts and package part names (not extracted sensitive values), and fails closed on corrupt or unexpectedly large packages. It flags VBA, embedded parts, collaboration, hidden content, tracked changes, external relationships, email addresses, and candidate AWS access keys. **It is a heuristic risk inventory, not a forensic or complete content scanner.** Text split across XML elements, images, legacy/OLE, encrypted or non-OOXML formats, and secrets hidden in VBA binary streams may not be detected. No scan result certifies safe sharing.
 
 Run `python -m pytest -q` before deploying. This is a pre-release and must not be used as a classified document declassification tool.
+
+## v2.0.0 alpha 2: independent package verification
+Metadata-only cleaning remains narrow; it does not redact document content or VBA source.
+The sanitizer now refuses to overwrite existing outputs or modify digitally signed OOXML packages.
+Use `python -m office_sanitizer example.docm --verify-output sanitized/example.docm` to compare original and output part hashes and package relationships independently. A positive result means **package integrity only**, not confidentiality clearance. Open real documents in Office and review their content separately.
