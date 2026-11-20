@@ -1,12 +1,14 @@
-# v3.0.0a3 local verification — 2026-11-19
+# Office Sanitizer v3.0.0a4 source verification
 
-**Status: alpha source, not a certified sensitive/classified-data sanitizer.**
+Date: 2026-11-20
 
-- Python 3.13: `python -m compileall -q office_sanitizer tests` passed.
-- Python 3.13: `python -m pytest -q`: **39 passed** locally with python-docx, openpyxl and python-pptx.
-- Generated DOCX/XLSX/PPTX samples sanitized, independently package-verified, reopened using each Office-format Python library and converted into nonempty PDFs by LibreOffice (exit status 0).
-- New adversarial tests cover independent verification failure, destination-creation race and oversized XML.
-- Hosted CircleCI and actual Microsoft Office compatibility are not verified. No signed installer or stable GitHub Release has been produced.
-- VBA source is preserved rather than sanitized. No complete content redaction or classification clearance is implied; all outputs require human review.
+Status: **source pre-release, not a certified sanitization or classification-clearance product**.
 
-Track release blockers in [issue #1](https://github.com/sudipdasin/office-sanitizer/issues/1).
+- Locally assembled source package: Python 3.13 `python -m pytest -q` — **44 passed**; `python -m compileall -q office_sanitizer tests` — passed.
+- Generated DOCX/XLSX/PPTX samples passed metadata cleanup and independent verification, reopened using python-docx/openpyxl/python-pptx, and successfully converted to nonempty PDF documents using local LibreOffice.
+- Five additional tests cover ZIP archive/member comments, extra fields, timestamps, filenames with PII indicators and report privacy.
+- **Provenance caveat:** prior v3.0.0a3 local archive differed from the GitHub starting-tree blobs, so these local tests are not proof that the precise GitHub commit passed CI.
+- Hosted CircleCI, real Microsoft Office tests, broad legacy format support, full-body redaction, VBA source cleaning and signed installable releases remain unverified/unimplemented.
+- Source files must not be treated as safe to share solely because package verification passes.
+
+Release blockers: https://github.com/sudipdasin/office-sanitizer/issues/1
