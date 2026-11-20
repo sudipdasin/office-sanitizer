@@ -47,3 +47,11 @@
 - Let guarded processing clean removable ZIP metadata while blocking non-removable indicators.
 - Add five regression tests (44/44 passed locally on assembled source); three LibreOffice conversion smoke tests passed.
 - Hosted CI, Microsoft Office testing, full content redaction, VBA source sanitization, and installable stable release remain outstanding.
+
+
+## 3.0.0a5 — 2026-11-21
+- Improve heuristic detection of sensitive strings split across Office XML text runs.
+- Flag potential confidentiality/classification marking text for **human review**, including text split across XML elements.
+- Keep extracted values and classification marking text out of default reports.
+- Add five regression tests for split email addresses, guarded blocking, review markings and private-value-safe reports.
+- Locally assembled source: 49/49 regression tests passed with Python. Hosted CI on the exact new commit and Microsoft Office compatibility are separate release gates.
