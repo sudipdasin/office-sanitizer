@@ -8,6 +8,8 @@ import re
 import zipfile
 from .security import validate_package, contains_signatures
 
+# Review-only marking heuristic, never proof of document classification.
+MARKING = re.compile(r"(?i)\b(?:TOP[\s-]+SECRET|SECRET[\s-]+NOFORN|CONFIDENTIAL|OFFICIAL[\s-]+SENSITIVE|CONTROLLED[\s-]+UNCLASSIFIED[\s-]+INFORMATION)\b")
 REL_NS = "http://schemas.openxmlformats.org/package/2006/relationships"
 SENSITIVE = {
     "email_addresses": re.compile(r"(?<![\w.@])[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}(?![\w.-])"),
@@ -81,13 +83,29 @@ def scan_ooxml(path: str | Path) -> Audit:
                 root = ET.fromstring(data)
                 out.parts_scanned += 1
                 out.xml_bytes_scanned += len(data)
+                # Join XML text runs so split Office-formatted values can
+                # be detected. This is heuristic, not full content validation.
+                combined_text = "".join(root.itertext())
+                for label, regex in SENSITIVE.items():
+                    hits = len(regex.findall(combined_text))
+                    if hits:
+                        counts[label] += hits
+                        flagged.add(name)
+                markings = len(MARKING.findall(combined_text))
+                if markings:
+                    counts["classification_marking_candidates"] += markings
+                    flagged.add(name)
                 for elem in root.iter():
-                    for value in [elem.text or "", *elem.attrib.values()]:
+                    for value in elem.attrib.values():
                         for label, regex in SENSITIVE.items():
                             hits = len(regex.findall(value))
                             if hits:
                                 counts[label] += hits
                                 flagged.add(name)
+                        markings = len(MARKING.findall(value))
+                        if markings:
+                            counts["classification_marking_candidates"] += markings
+                            flagged.add(name)
                     tag = elem.tag.rsplit("}", 1)[-1]
                     if tag in {"del", "ins", "moveFrom", "moveTo", "delText"}:
                         counts["tracked_change_nodes"] += 1
