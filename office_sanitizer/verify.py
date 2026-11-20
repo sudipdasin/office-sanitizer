@@ -61,6 +61,12 @@ def verify_output(original: str | Path, cleaned: str | Path) -> Verification:
                 raise ValueError("signed package: cannot assert validity after rewriting")
             if src.testzip() is not None or dst.testzip() is not None:
                 raise ValueError('ZIP integrity failure')
+            if dst.comment:
+                raise ValueError('residual ZIP archive comment')
+            for item in dst.infolist():
+                if (item.comment or item.extra or
+                        item.date_time != (1980, 1, 1, 0, 0, 0)):
+                    raise ValueError('residual ZIP member metadata')
             a = set(src.namelist())
             b = set(dst.namelist())
             removable = META_NAMES | {name for name in a if name.startswith('docProps/thumbnail.')}
