@@ -37,3 +37,13 @@
 - Add seven regression/integration tests: 39 tests passed locally (Python 3.13).
 - Generated Word, Excel, and PowerPoint samples reopened via their Python Office libraries and converted successfully to PDF by LibreOffice.
 - Hosted CircleCI, Microsoft Office compatibility, full-content redaction, VBA source sanitization, and signed installers remain unverified.
+
+
+## 3.0.0a4 — 2026-11-20
+- Scrub ZIP archive comment, per-member comments, ZIP extra fields and per-member timestamps from sanitized copies.
+- Independently verify cleaned ZIP members have no residual container metadata.
+- Flag archive metadata and potentially sensitive member filenames without disclosing detected values in default reports.
+- Replace raw removed-part names with counts in public cleanup reports.
+- Let guarded processing clean removable ZIP metadata while blocking non-removable indicators.
+- Add five regression tests (44/44 passed locally on assembled source); three LibreOffice conversion smoke tests passed.
+- Hosted CI, Microsoft Office testing, full content redaction, VBA source sanitization, and installable stable release remain outstanding.
