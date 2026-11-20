@@ -51,3 +51,12 @@ The pre-release now rejects malicious ZIP paths, symlinks, unsupported/encrypted
 The metadata-only cleaner independently validates the temporary sanitized package before publishing it and uses non-overwriting hard-link creation. Excessive XML members are rejected. These safeguards **do not remove sensitive document body content, VBA source, hidden content or classification markings**. No scan or output certifies a document for release.
 
 New tests include real generated Word (`python-docx`), Excel (`openpyxl`), and PowerPoint (`python-pptx`) document round trips. Install `pytest python-docx openpyxl python-pptx` and run `python -m pytest -q`. One local LibreOffice smoke run also rendered the cleaned files as PDFs; Microsoft Office and broader compatibility remain unverified. Hosted CircleCI execution must be checked separately.
+
+
+## v3.0.0 Alpha 4 — ZIP-container privacy hardening
+
+Office documents are ZIP containers. In addition to selected OOXML `docProps` parts, the metadata-only cleaner now rebuilds ZIP entries without original entry timestamps, comments, or extra fields, and omits the archive comment. ZIP member contents, including VBA project binaries, are preserved unchanged as verified by the independent checker. The scanner inventories those container fields and flags sensitive email indicators in package filenames without publishing matched values or archive member names.
+
+Guarded mode permits removal of **container metadata** and selected document-property metadata, but blocks non-removable privacy indicators and VBA-containing documents. Source files are never overwritten. **Document body content, filenames referenced inside the OOXML package, VBA source, embedded payloads and classification markings are not sanitized.** No result constitutes clearance to distribute sensitive or classified material.
+
+Local verification: 44 Python tests passed on an assembled source package; generated Word, Excel and PowerPoint samples converted to PDFs with LibreOffice. Hosted CI and Microsoft Office compatibility are not verified. The earlier v3.0.0a3 ZIP baseline differs from GitHub's initial tree and local tests must not be treated as a hosted validation of repository commits.
