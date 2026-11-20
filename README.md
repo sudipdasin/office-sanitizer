@@ -60,3 +60,10 @@ Office documents are ZIP containers. In addition to selected OOXML `docProps` pa
 Guarded mode permits removal of **container metadata** and selected document-property metadata, but blocks non-removable privacy indicators and VBA-containing documents. Source files are never overwritten. **Document body content, filenames referenced inside the OOXML package, VBA source, embedded payloads and classification markings are not sanitized.** No result constitutes clearance to distribute sensitive or classified material.
 
 Local verification: 44 Python tests passed on an assembled source package; generated Word, Excel and PowerPoint samples converted to PDFs with LibreOffice. Hosted CI and Microsoft Office compatibility are not verified. The earlier v3.0.0a3 ZIP baseline differs from GitHub's initial tree and local tests must not be treated as a hosted validation of repository commits.
+
+
+## v3.0.0 Alpha 5 — split-run risk detection
+
+The read-only `--audit` scan now concatenates XML character-data runs within each package part before checking for email addresses, possible secrets and classification-marking *candidates*. This helps catch sensitive strings split by common Office formatting. Attributes remain scanned separately; output reports contain counts and opaque package identifiers, never matched text. Guarded mode blocks documents when these indicators are found.
+
+This is a **heuristic indicator scan**, not comprehensive sensitive-data removal or official determination of classification. It cannot detect all secrets, text in images/binary objects, or cross-package fragments. Metadata-only cleaning and VBA binary preservation remain unchanged. Human review and relevant clearance procedures are required before disclosure.
