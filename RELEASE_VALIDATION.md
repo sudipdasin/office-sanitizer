@@ -1,14 +1,12 @@
-# Office Sanitizer v3.0.0a4 source verification
+# Office Sanitizer v3.0.0a5 verification
 
-Date: 2026-11-20
+Date: 2026-11-21
 
-Status: **source pre-release, not a certified sanitization or classification-clearance product**.
-
-- Locally assembled source package: Python 3.13 `python -m pytest -q` — **44 passed**; `python -m compileall -q office_sanitizer tests` — passed.
-- Generated DOCX/XLSX/PPTX samples passed metadata cleanup and independent verification, reopened using python-docx/openpyxl/python-pptx, and successfully converted to nonempty PDF documents using local LibreOffice.
-- Five additional tests cover ZIP archive/member comments, extra fields, timestamps, filenames with PII indicators and report privacy.
-- **Provenance caveat:** prior v3.0.0a3 local archive differed from the GitHub starting-tree blobs, so these local tests are not proof that the precise GitHub commit passed CI.
-- Hosted CircleCI, real Microsoft Office tests, broad legacy format support, full-body redaction, VBA source cleaning and signed installable releases remain unverified/unimplemented.
-- Source files must not be treated as safe to share solely because package verification passes.
+- Locally assembled Alpha 5 archive: **49/49 Python tests passed**; `python -m compileall -q office_sanitizer tests` passed.
+- Five new tests exercise XML run-spanning indicators, guarded blocking and confidentiality-marking privacy.
+- Note that prior source-archive and GitHub baseline trees differ; **local archive tests are not proof that the precise GitHub HEAD passed hosted CI**.
+- Host CircleCI must report a passing build on this exact commit before it is declared CI validated.
+- Actual Microsoft Office multi-version compatibility, full VBA source sanitization, content redaction and a signed installable stable release remain outstanding.
+- This product is not certified for disclosure/declassification of confidential or classified information; outputs still require review.
 
 Release blockers: https://github.com/sudipdasin/office-sanitizer/issues/1
