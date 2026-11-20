@@ -36,6 +36,8 @@ def scan_ooxml(path: str | Path) -> Audit:
     try:
         with zipfile.ZipFile(path) as archive:
             infos = archive.infolist()
+            if archive.comment:
+                counts["zip_archive_comment"] += 1
             validate_package(archive)
             names = {i.filename for i in infos}
             if contains_signatures(names):
@@ -44,6 +46,20 @@ def scan_ooxml(path: str | Path) -> Audit:
             for info in infos:
                 name = info.filename
                 low = name.lower()
+                if info.comment:
+                    counts["zip_member_comments"] += 1
+                    flagged.add(name)
+                if info.extra:
+                    counts["zip_member_extra_fields"] += 1
+                    flagged.add(name)
+                if info.date_time != (1980, 1, 1, 0, 0, 0):
+                    counts["zip_member_timestamps"] += 1
+                    flagged.add(name)
+                # A package member filename can itself carry private data.
+                for indicator, pattern in SENSITIVE.items():
+                    if pattern.search(name):
+                        counts["zip_filename_" + indicator] += 1
+                        flagged.add(name)
                 if name.startswith("/") or "\\" in name or ".." in name.split("/"):
                     raise ValueError("unsafe package entry")
                 if info.file_size > 1048576 and info.file_size > 200 * max(1, info.compress_size):
@@ -82,7 +98,11 @@ def scan_ooxml(path: str | Path) -> Audit:
                     if elem.tag == f"{{{REL_NS}}}Relationship" and elem.get("TargetMode") == "External":
                         counts["external_relationships"] += 1
                         flagged.add(name)
-            out.status = "review_required" if counts else "no_indicators_detected"
+            # Timestamps alone are a removable container-metadata signal,
+            # not a reason to block an otherwise clean metadata-only workflow.
+            actionable = {k: v for k, v in counts.items()
+                          if k not in {"zip_member_timestamps"} and v > 0}
+            out.status = "review_required" if actionable else "no_indicators_detected"
             out.warnings.append("Indicator scan only: does not certify safe sharing, sanitize VBA or remove sensitive content")
     except (OSError, ValueError, RuntimeError, ET.ParseError, zipfile.BadZipFile) as exc:
         out.status = "incomplete"
