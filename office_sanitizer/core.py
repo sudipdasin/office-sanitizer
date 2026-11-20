@@ -39,6 +39,8 @@ class Result:
     def public_dict(self) -> dict:
         report = {k: v for k, v in asdict(self).items()
                   if k not in ('source', 'output', 'macro_sha256_before', 'macro_sha256_after')}
+        report['removed_part_count'] = len(self.removed)
+        report.pop('removed', None)
         report['macro_project_count'] = len(self.macro_sha256_before)
         report['macro_projects_preserved'] = self.macro_sha256_before == self.macro_sha256_after
         return report
@@ -127,7 +129,13 @@ def sanitize(source: str | Path, output: str | Path) -> Result:
                     data = zin.read(info.filename)
                     if info.filename == '[Content_Types].xml' or info.filename.endswith('.rels'):
                         data = _rewrite_xml(info.filename, data, to_remove)
-                    zout.writestr(info, data)
+                    # Do not re-emit input ZIP timestamps, member comments,
+                    # extra fields, or platform-specific metadata. These can
+                    # contain personal information independent of OOXML parts.
+                    # Content bytes (including vbaProject.bin) stay unchanged.
+                    sanitized_info = zipfile.ZipInfo(info.filename, date_time=(1980, 1, 1, 0, 0, 0))
+                    sanitized_info.compress_type = zipfile.ZIP_DEFLATED
+                    zout.writestr(sanitized_info, data)
         with zipfile.ZipFile(temp_name) as verified:
             validate_package(verified)
             if verified.testzip() is not None:
