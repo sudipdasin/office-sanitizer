@@ -40,8 +40,12 @@ def guarded_sanitize(source: str | Path, output: str | Path) -> WorkflowResult:
     if pre.status == "incomplete":
         result.reason_codes.append("preflight_incomplete")
         return result
+    removable_metadata_indicators = {
+        "metadata_parts", "zip_member_timestamps", "zip_member_comments",
+        "zip_member_extra_fields", "zip_archive_comment",
+    }
     risky = {key: value for key, value in pre.findings.items()
-             if key != "metadata_parts" and value > 0}
+             if key not in removable_metadata_indicators and value > 0}
     if risky:
         result.reason_codes.append("preflight_indicators_require_review")
         return result
@@ -61,7 +65,7 @@ def guarded_sanitize(source: str | Path, output: str | Path) -> WorkflowResult:
             result.reason_codes.append("unsafe_output_cleanup_failed")
         result.reason_codes.append("postflight_failed")
         return result
-    if any(v > 0 for k, v in post.findings.items() if k != "metadata_parts"):
+    if any(v > 0 for k, v in post.findings.items() if k not in removable_metadata_indicators):
         try:
             dst.unlink()
         except OSError:
