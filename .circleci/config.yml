@@ -6,24 +6,23 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: Install test dependencies
           command: python -m pip install --upgrade pip pytest python-docx openpyxl python-pptx && python -m pip install -e .
       - run:
-          name: Compile
-          command: python -m compileall -q office_sanitizer tests
+          name: Compile and test
+          command: python -m compileall -q office_sanitizer tests && python -m pytest -q
       - run:
-          name: Run tests
-          command: python -m pytest -q
-      - run:
-          name: Package and verify installable Python wheel
+          name: Build and verify packages
           command: |
             python -m pip wheel . --no-deps -w dist
             python -m pip install --force-reinstall --no-deps dist/*.whl
             office-sanitizer --help
-            python -c 'import office_sanitizer.gui; print("GUI imports headlessly")'
+            python -c 'import office_sanitizer.gui'
+            bash scripts/build_deb.sh
+            dpkg-deb --info dist/office-sanitizer_4.1.0~beta1_all.deb
       - store_artifacts:
           path: dist
-          destination: python-wheel
+          destination: packages
 workflows:
   build-test:
     jobs:
