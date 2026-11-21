@@ -62,3 +62,10 @@
 - Added reusable batch orchestration with deterministic file ordering, symlink avoidance, and filename-collision rejection.
 - Added Python wheel packaging and GUI entry point; native signed installers remain out of scope.
 - Maintained conservative metadata-only semantics; no claims of classified-data clearance, VBA source cleaning, or universal Office support.
+
+
+## 4.1.0b1 — 2026-11-22
+- Add review-only exposure inventory for hidden Office content, external data connections, cached data, custom XML and embedded controls.
+- Keep guarded mode fail-closed on these findings; never remove them automatically.
+- Add six synthetic Excel, Word and PowerPoint regression tests, totaling 62 tests passed locally on the assembled source.
+- Built an installable Python wheel. Hosted CircleCI and real Office application testing remain distinct verification requirements.
