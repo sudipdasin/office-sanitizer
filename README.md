@@ -67,3 +67,12 @@ Local verification: 44 Python tests passed on an assembled source package; gener
 The read-only `--audit` scan now concatenates XML character-data runs within each package part before checking for email addresses, possible secrets and classification-marking *candidates*. This helps catch sensitive strings split by common Office formatting. Attributes remain scanned separately; output reports contain counts and opaque package identifiers, never matched text. Guarded mode blocks documents when these indicators are found.
 
 This is a **heuristic indicator scan**, not comprehensive sensitive-data removal or official determination of classification. It cannot detect all secrets, text in images/binary objects, or cross-package fragments. Metadata-only cleaning and VBA binary preservation remain unchanged. Human review and relevant clearance procedures are required before disclosure.
+
+
+## v4.0.0 Beta 1 — Offline desktop application
+
+Start the desktop interface with `office-sanitizer-gui` (or `python -m office_sanitizer.gui`). Tkinter must be installed with your Python distribution (on Debian/Ubuntu: `python3-tk`). Choose files or a folder, run **audit only** by default, or select **guarded metadata cleanup**, which refuses detected content risks and never overwrites existing output files. Reports use file indexes rather than source paths or matched strings. The GUI does not open Office files or execute VBA.
+
+Run `python -m pip install .` in the source folder to install the command-line and desktop entrypoints. Installable Python wheel and cross-platform source ZIP are release artifacts; this is not a native system installer.
+
+**Security limitations:** This does NOT redact body text, sanitize VBA source, decode embedded objects, inspect images, decrypt documents, or certify any file for distribution. Risk detection is heuristic and requires qualified human review. Legacy Office formats are unsupported. Never upload classified files to a CI pipeline or public issue tracker.
