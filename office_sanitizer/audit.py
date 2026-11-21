@@ -7,6 +7,7 @@ from xml.etree import ElementTree as ET
 import re
 import zipfile
 from .security import validate_package, contains_signatures
+from .exposure import package_exposures, xml_exposures
 
 # Review-only marking heuristic, never proof of document classification.
 MARKING = re.compile(r"(?i)\b(?:TOP[\s-]+SECRET|SECRET[\s-]+NOFORN|CONFIDENTIAL|OFFICIAL[\s-]+SENSITIVE|CONTROLLED[\s-]+UNCLASSIFIED[\s-]+INFORMATION)\b")
@@ -47,6 +48,10 @@ def scan_ooxml(path: str | Path) -> Audit:
                 flagged.update(n for n in names if '_xmlsignatures/' in n.lower())
             for info in infos:
                 name = info.filename
+                exposure_counts = package_exposures(name)
+                counts.update(exposure_counts)
+                if exposure_counts:
+                    flagged.add(name)
                 low = name.lower()
                 if info.comment:
                     counts["zip_member_comments"] += 1
@@ -81,6 +86,10 @@ def scan_ooxml(path: str | Path) -> Audit:
                     raise ValueError("XML inspection size limit")
                 data = archive.read(name)
                 root = ET.fromstring(data)
+                xml_risks = xml_exposures(name, root)
+                counts.update(xml_risks)
+                if xml_risks:
+                    flagged.add(name)
                 out.parts_scanned += 1
                 out.xml_bytes_scanned += len(data)
                 # Join XML text runs so split Office-formatted values can
