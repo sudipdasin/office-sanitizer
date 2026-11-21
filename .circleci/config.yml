@@ -7,7 +7,7 @@ jobs:
       - checkout
       - run:
           name: Install dependencies
-          command: python -m pip install --upgrade pip pytest python-docx openpyxl python-pptx && python -m pip install -e . && python -m pip install -e .
+          command: python -m pip install --upgrade pip pytest python-docx openpyxl python-pptx && python -m pip install -e .
       - run:
           name: Compile
           command: python -m compileall -q office_sanitizer tests
