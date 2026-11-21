@@ -76,3 +76,10 @@ Start the desktop interface with `office-sanitizer-gui` (or `python -m office_sa
 Run `python -m pip install .` in the source folder to install the command-line and desktop entrypoints. Installable Python wheel and cross-platform source ZIP are release artifacts; this is not a native system installer.
 
 **Security limitations:** This does NOT redact body text, sanitize VBA source, decode embedded objects, inspect images, decrypt documents, or certify any file for distribution. Risk detection is heuristic and requires qualified human review. Legacy Office formats are unsupported. Never upload classified files to a CI pipeline or public issue tracker.
+
+
+## v4.1.0 Beta 1 — Office-specific privacy exposure inventory
+
+Read-only audits now flag Excel hidden sheets/rows/columns, external links, data connections, query tables, pivot caches and hidden defined names; PowerPoint notes and hidden slides; Word linked-field candidates; custom XML, ActiveX and embedded payloads. Reports contain aggregate counts and opaque part identifiers, not extracted content. Guarded mode blocks on these indicators instead of silently deleting legitimate document structures.
+
+**Not complete detection or redaction:** VBA macros are preserved, not executed, and VBA source is not sanitized. Password-protected, encrypted and legacy Office formats require manual handling. Classification and confidentiality clearance are outside the tool.
