@@ -55,3 +55,10 @@
 - Keep extracted values and classification marking text out of default reports.
 - Add five regression tests for split email addresses, guarded blocking, review markings and private-value-safe reports.
 - Locally assembled source: 49/49 regression tests passed with Python. Hosted CI on the exact new commit and Microsoft Office compatibility are separate release gates.
+
+
+## 4.0.0b1 — 2026-11-21
+- Added offline Tkinter desktop GUI with file/folder selection, default audit mode, guarded metadata-copy mode, and privacy-safe JSON report export.
+- Added reusable batch orchestration with deterministic file ordering, symlink avoidance, and filename-collision rejection.
+- Added Python wheel packaging and GUI entry point; native signed installers remain out of scope.
+- Maintained conservative metadata-only semantics; no claims of classified-data clearance, VBA source cleaning, or universal Office support.
