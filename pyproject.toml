@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "office-sanitizer"
-version = "4.0.0b1"
+version = "4.1.0b1"
 description = "Offline, fail-closed OOXML metadata sanitizer with macro binary preservation"
 requires-python = ">=3.10"
 license = "GPL-3.0-only"
