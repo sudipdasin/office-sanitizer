@@ -17,10 +17,13 @@ jobs:
       - run:
           name: Package and verify installable Python wheel
           command: |
-            python -m pip wheel . --no-deps -w /tmp/dist
-            python -m pip install --force-reinstall --no-deps /tmp/dist/*.whl
+            python -m pip wheel . --no-deps -w dist
+            python -m pip install --force-reinstall --no-deps dist/*.whl
             office-sanitizer --help
             python -c 'import office_sanitizer.gui; print("GUI imports headlessly")'
+      - store_artifacts:
+          path: dist
+          destination: python-wheel
 workflows:
   build-test:
     jobs:
