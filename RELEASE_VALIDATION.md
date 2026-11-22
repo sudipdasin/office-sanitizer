@@ -1,19 +1,11 @@
-# Office Sanitizer v4.1.0b1 — Release verification
+# Office Sanitizer v4.2.0b1 release record
 
-Date: 2026-11-22
-
-## Verified locally
-- Assembled Community source: Python regression suite **64/64 passed** including six synthetic exposure tests and two tests using generated real Office OOXML files (hidden Excel sheet, PowerPoint speaker notes).
-- Python bytecode compilation succeeded.
-- A pure-Python versioned wheel built and installed; command-line entrypoint loaded.
-- A Debian/Ubuntu all-architecture package built using `scripts/build_deb.sh`; Debian package metadata and contents inspected.
-- Private Pro-only triage module: **8 local tests passed**; conservative fail-closed prioritization, no secret values in reports.
-
-## Trust boundary and release gates
-- These local source assemblies may differ in whitespace/docs from the exact GitHub tree. Hosted CI passing on the commit is separate evidence.
-- Heuristic scan only; **no comprehensive sensitive-content redaction, VBA source rewriting, classification clearance, or certification**.
-- Broad Microsoft Office/LibreOffice versions, file types and install environments have not been independently validated for this version.
-- No signed native installer or GitHub Release asset published. CircleCI artifacts are versioned build outputs when CI succeeds.
-- Community retains GPLv3; Pro proprietary code remains private, with distribution subject to licensing review.
-
-Release gate: https://github.com/sudipdasin/office-sanitizer/issues/1
+- Local Python 3.13 source: **76/76 tests passed** and compileall passed.
+- Debian v4.2.0~beta1 package built successfully and verified using dpkg-deb info/content and filesystem extraction.
+- Extracted Debian command-line and updater entry points ran using the distro Python runtime.
+- GUI launched under xvfb virtual X11 and remained open without errors until controlled termination.
+- Official desktop and XFCE autostart files verified in the package.
+- Security tests cover malicious download URLs, missing SHA-256 digests, corrupt download bytes, release version ordering, and size limits.
+- Automatic update checks are enabled; **unattended installation is not**. A GitHub Release asset with SHA-256 digest is required to install via the updater; no current public update asset was verified.
+- These are local build results; check CircleCI separately on the exact GitHub commit. The local source archive may differ from the GitHub source tree.
+- Software remains metadata-only and does not certify sensitive/classified document clearance.
