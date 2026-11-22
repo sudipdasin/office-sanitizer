@@ -8,6 +8,7 @@ from pathlib import Path
 
 from . import __version__
 from .batch import choose_files, process_batch
+from .updater import find_update, UpdateError
 
 
 def main() -> None:
@@ -40,6 +41,7 @@ def main() -> None:
             ttk.Button(controls, text='Add folder', command=self.add_folder).pack(side='left', padx=6)
             ttk.Checkbutton(controls, text='Include subfolders', variable=self.recursive).pack(side='left', padx=8)
             ttk.Button(controls, text='Clear', command=self.clear).pack(side='right')
+            ttk.Button(controls, text='Check updates', command=self.check_updates).pack(side='right', padx=7)
             ttk.Label(main, text='Selected files (local names shown only in this window)').pack(anchor='w', pady=(12, 4))
             self.file_list = tk.Listbox(main, height=8, exportselection=False)
             self.file_list.pack(fill='both', expand=True)
@@ -128,6 +130,24 @@ def main() -> None:
                         self.status.set(f'{len(value)} documents processed — human review required')
                         self.show_results('\n'.join(f"File #{x['index']}: {x['status']}" for x in value))
                         self.save_button.configure(state='normal')
+                    elif event == 'update':
+                        if value:
+                            self.status.set(f"Update available: {value['tag']}")
+                            if messagebox.askyesno('Update available',
+                               f"A newer version ({value['tag']}) is available.\n\n"
+                               'Install via authenticated APT? A terminal confirmation is required.'):
+                                import shutil
+                                import subprocess
+                                if shutil.which('xfce4-terminal'):
+                                    subprocess.Popen(['xfce4-terminal', '--hold', '-x',
+                                                      'office-sanitizer-update', '--install'])
+                                else:
+                                    messagebox.showinfo('Install update',
+                                        'Run office-sanitizer-update --install in a terminal.')
+                        else:
+                            self.status.set('No newer verified GitHub Release found')
+                    elif event == 'update_error':
+                        self.status.set('Unable to contact official GitHub Releases')
                     else:
                         self.status.set(value)
             except queue.Empty:
@@ -139,6 +159,18 @@ def main() -> None:
             self.results_view.delete('1.0', 'end')
             self.results_view.insert('1.0', text)
             self.results_view.configure(state='disabled')
+
+        def check_updates(self):
+            if self.worker_running:
+                return
+            self.status.set('Checking official GitHub Releases (no document content sent)…')
+            def work():
+                try:
+                    candidate = find_update()
+                    self.queue.put(('update', candidate))
+                except UpdateError:
+                    self.queue.put(('update_error', None))
+            threading.Thread(target=work, daemon=True).start()
 
         def save_report(self):
             if not self.results:
