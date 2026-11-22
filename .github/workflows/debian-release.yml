@@ -19,16 +19,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Build and check
-        shell: bash
-        run: |
-          set -euo pipefail
-          python -m pip install -e . pytest python-docx openpyxl python-pptx
-          python -m pytest -q
-          bash scripts/build_deb.sh 4.2.0~beta1 dist
-          dpkg-deb --info dist/office-sanitizer_4.2.0~beta1_all.deb
-          sha256sum dist/*.deb > dist/SHA256SUMS
-      - name: Verify requested tag
+      - name: Validate version tag
         id: tag
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -38,8 +29,20 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$EVENT_NAME" == "push" ]]; then TAG="$PUSH_TAG"; else TAG="$INPUT_TAG"; fi
-          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$ ]] || exit 1
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-beta\.[0-9]+$ ]] || exit 1
+          DEB_VERSION="${TAG#v}"
+          DEB_VERSION="${DEB_VERSION/-beta./~beta}"
           echo "name=$TAG" >> "$GITHUB_OUTPUT"
+          echo "deb_version=$DEB_VERSION" >> "$GITHUB_OUTPUT"
+      - name: Build and check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -e . pytest python-docx openpyxl python-pptx
+          python -m pytest -q
+          bash scripts/build_deb.sh "${{ steps.tag.outputs.deb_version }}" dist
+          dpkg-deb --info "dist/office-sanitizer_${{ steps.tag.outputs.deb_version }}_all.deb"
+          sha256sum dist/*.deb > dist/SHA256SUMS
       - name: Publish versioned prerelease asset
         uses: softprops/action-gh-release@v2
         with:
