@@ -19,7 +19,10 @@ jobs:
             office-sanitizer --help
             python -c 'import office_sanitizer.gui'
             bash scripts/build_deb.sh
-            dpkg-deb --info dist/office-sanitizer_4.1.0~beta1_all.deb
+            dpkg-deb --info dist/office-sanitizer_4.2.0~beta1_all.deb
+            python -m office_sanitizer.updater --help
+            dpkg-deb --contents dist/office-sanitizer_4.2.0~beta1_all.deb | grep 'etc/xdg/autostart/office-sanitizer-update.desktop'
+            dpkg-deb --contents dist/office-sanitizer_4.2.0~beta1_all.deb | grep 'usr/share/applications/office-sanitizer.desktop'
       - store_artifacts:
           path: dist
           destination: packages
