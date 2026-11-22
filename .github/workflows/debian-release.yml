@@ -1,0 +1,52 @@
+name: Build Debian GitHub Release for XFCE updates
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Existing release tag (e.g. v4.2.0-beta.1)'
+        required: true
+        type: string
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build and check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install -e . pytest python-docx openpyxl python-pptx
+          python -m pytest -q
+          bash scripts/build_deb.sh 4.2.0~beta1 dist
+          dpkg-deb --info dist/office-sanitizer_4.2.0~beta1_all.deb
+          sha256sum dist/*.deb > dist/SHA256SUMS
+      - name: Verify requested tag
+        id: tag
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PUSH_TAG: ${{ github.ref_name }}
+          INPUT_TAG: ${{ inputs.release_tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "push" ]]; then TAG="$PUSH_TAG"; else TAG="$INPUT_TAG"; fi
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$ ]] || exit 1
+          echo "name=$TAG" >> "$GITHUB_OUTPUT"
+      - name: Publish versioned prerelease asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.name }}
+          prerelease: true
+          make_latest: false
+          generate_release_notes: true
+          files: |
+            dist/*.deb
+            dist/SHA256SUMS
