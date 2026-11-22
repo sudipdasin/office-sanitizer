@@ -83,3 +83,12 @@ Run `python -m pip install .` in the source folder to install the command-line a
 Read-only audits now flag Excel hidden sheets/rows/columns, external links, data connections, query tables, pivot caches and hidden defined names; PowerPoint notes and hidden slides; Word linked-field candidates; custom XML, ActiveX and embedded payloads. Reports contain aggregate counts and opaque part identifiers, not extracted content. Guarded mode blocks on these indicators instead of silently deleting legitimate document structures.
 
 **Not complete detection or redaction:** VBA macros are preserved, not executed, and VBA source is not sanitized. Password-protected, encrypted and legacy Office formats require manual handling. Classification and confidentiality clearance are outside the tool.
+
+
+## v4.2.0 Beta 1 — XFCE installation and updates
+
+Install the Debian package with `sudo apt install ./office-sanitizer_4.2.0~beta1_all.deb`. Launch from the XFCE **Office** application menu or run `office-sanitizer-gui`. The package includes a scalable icon and an XFCE-specific automatic login check for new versions, rate-limited to once daily per user. A **Check updates** button is available in the GUI, or run `office-sanitizer-update --check`.
+
+Update checks consult only the official public GitHub Releases API; no document contents are transmitted. An installable update must be newer and provide an official Debian Release asset with a SHA-256 digest. To install a verified update, run `office-sanitizer-update --install`, enter YES, and authenticate with Polkit/apt. No unattended privileged installation takes place.
+
+**Important:** The public GitHub Releases page does not yet have a verified versioned Debian asset publisher. Until it does, automatic checks may report no installable releases. Genuine silent automatic upgrades require a signed APT repository plus opted-in unattended-upgrades. This is not yet configured; normal APT packages do not automatically track arbitrary GitHub source commits. Existing metadata-only and human review safety restrictions remain.
