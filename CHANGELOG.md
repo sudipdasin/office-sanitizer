@@ -69,3 +69,12 @@
 - Keep guarded mode fail-closed on these findings; never remove them automatically.
 - Add six synthetic Excel, Word and PowerPoint regression tests, totaling 62 tests passed locally on the assembled source.
 - Built an installable Python wheel. Hosted CircleCI and real Office application testing remain distinct verification requirements.
+
+
+## 4.2.0b1 — XFCE desktop and verified update checks
+- XFCE Office menu launcher, scalable icon and automatic per-login update check, rate-limited once daily.
+- GUI **Check updates** button and `office-sanitizer-update` CLI.
+- Check official GitHub Release metadata and require a matching Debian package with SHA-256 asset digest.
+- Authenticated user-confirmed APT installation; no silent root update.
+- Add 12 updater regression tests. Local source: 76/76 tests passed; Debian extraction, CLI and GUI smoke tests passed.
+- Pending: publish a GitHub Release asset or signed APT repository to supply future upgrades.
