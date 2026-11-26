@@ -20,7 +20,7 @@ mkdir -p "$OUT"
 OUT="$(realpath "$OUT")"
 python -m compileall -q office_sanitizer tests scripts
 python -m pytest -q
-python -m pip wheel --no-index --no-build-isolation --no-deps -w "$OUT" .
+python scripts/build_wheel_offline.py --output "$OUT"
 bash scripts/build_deb.sh "$DEB_VERSION" "$OUT"
 python scripts/build_source_archive.py --output "$OUT/office-sanitizer-$VERSION-source.zip"
 python - "$OUT" "$VERSION" "$DEB_VERSION" <<'PY'
