@@ -2,18 +2,13 @@
 # Render static delivery only: no confidential documents, Actions or CircleCI.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-VERSION="$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")"
-printf 'Building XFCE portal for package version: %s\n' "$VERSION"
-DEB_VERSION="$(python - "$VERSION" <<'PY'
-import sys
-version=sys.argv[1].strip()
-base,separator,beta=version.rpartition('b')
-parts=base.split('.')
-if not (separator and len(parts)==3 and all(p.isdecimal() for p in parts) and beta.isdecimal()):
-    raise SystemExit('Invalid beta version metadata: '+repr(version))
-print(base+'~beta'+beta)
-PY
-)"
+# Render initializes Python/Poetry with stdout messages on first invocation;
+# use shell tools for version substitution to avoid capturing bootstrap logs.
+VERSION="$(awk -F '"' '/^version = / {print $2; exit}' pyproject.toml)"
+case "$VERSION" in *b[0-9]*) ;; *) echo "Invalid beta version" >&2; exit 1 ;; esac
+DEB_VERSION="$(printf '%s' "$VERSION" | sed -E 's/b([0-9]+)$/~beta\1/')"
+if [ "$DEB_VERSION" = "$VERSION" ]; then echo "Debian beta mapping failed" >&2; exit 1; fi
+printf 'Building XFCE portal version: %s\n' "$VERSION"
 OUT="$1"
 mkdir -p "$OUT/downloads"
 OUT="$(realpath "$OUT")"
