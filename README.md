@@ -92,3 +92,19 @@ Install the Debian package with `sudo apt install ./office-sanitizer_4.2.0~beta1
 Update checks consult only the official public GitHub Releases API; no document contents are transmitted. An installable update must be newer and provide an official Debian Release asset with a SHA-256 digest. To install a verified update, run `office-sanitizer-update --install`, enter YES, and authenticate with Polkit/apt. No unattended privileged installation takes place.
 
 **Important:** The public GitHub Releases page does not yet have a verified versioned Debian asset publisher. Until it does, automatic checks may report no installable releases. Genuine silent automatic upgrades require a signed APT repository plus opted-in unattended-upgrades. This is not yet configured; normal APT packages do not automatically track arbitrary GitHub source commits. Existing metadata-only and human review safety restrictions remain.
+
+
+## v4.3.0 Beta 1 — CI-independent XFCE release engineering
+
+This milestone hardens the optional updater (strict GitHub release asset identity, approved HTTPS redirect hosts and Debian package metadata verification), improves batch fail-closed behavior (output-directory symlink rejection and case-insensitive filename collision checks), and adds **offline-only** reproducible release packaging.
+
+From a local checkout with Python build prerequisites already installed:
+
+```bash
+bash scripts/release_local.sh dist
+cd dist && sha256sum -c SHA256SUMS
+```
+
+The release script explicitly disables pip-index access, compiles Python, runs the complete local test suite, builds the Python wheel, creates an XFCE Debian package, archives an allowlisted source ZIP excluding private files, and writes SHA-256 checksums. It neither invokes GitHub Actions nor CircleCI. The public repository retains historical CI configurations, but **do not run or rely on either CI provider without owner approval**. Normal source commits use CI-skip markers where supported.
+
+Update checks are optional network operations only when launched by the installed user's XFCE session or manually; the **offline release build does not check for or download updates**. A GitHub Release digest is not equivalent to an independently signed publisher package. No secure unattended updates are claimed without a signed APT repository. No sanitization result clears confidential or classified document disclosure.
