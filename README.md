@@ -108,3 +108,14 @@ cd dist && sha256sum -c SHA256SUMS
 The release script explicitly disables pip-index access, compiles Python, runs the complete local test suite, builds the Python wheel, creates an XFCE Debian package, archives an allowlisted source ZIP excluding private files, and writes SHA-256 checksums. It neither invokes GitHub Actions nor CircleCI. The public repository retains historical CI configurations, but **do not run or rely on either CI provider without owner approval**. Normal source commits use CI-skip markers where supported.
 
 Update checks are optional network operations only when launched by the installed user's XFCE session or manually; the **offline release build does not check for or download updates**. A GitHub Release digest is not equivalent to an independently signed publisher package. No secure unattended updates are claimed without a signed APT repository. No sanitization result clears confidential or classified document disclosure.
+
+
+## v4.3.0 Beta 2 — Live release feed and CI-independent updates
+
+**Public download site:** https://office-sanitizer-xfce-live.onrender.com/
+
+The XFCE updater now checks both the official GitHub Releases endpoint (if reachable) and this independently hosted Render release feed. A provider outage does not prevent checking the other. Feed downloads are restricted to this exact HTTPS hostname and version-matched Debian filenames; untrusted redirect origins, invalid hashes, sizes, or malformed manifests are rejected. Downloaded `.deb` bytes must pass SHA-256 verification and Debian Package/Version/Architecture matching before the user is asked for an authenticated APT install.
+
+The website serves only distribution files and release metadata. **No Office document is uploaded or processed by Render.** Checks are optional and the application works entirely offline for scanning. GitHub Actions and CircleCI remain disabled by owner instruction; the site deploys manually from the repository without those CI providers.
+
+**Bootstrap note:** Users of the older Beta 1 installer must manually install Beta 2 once to enable the Render feed fallback. Later versions can be discovered through the Render feed. HTTPS plus a manifest checksum are not independent publisher signatures. Updates still require explicit approval and Polkit authentication; unattended upgrades require a signed APT repository. This application is metadata-only and does not clear classified data.
