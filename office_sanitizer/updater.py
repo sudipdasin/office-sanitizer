@@ -14,6 +14,7 @@ from urllib.request import Request, urlopen
 from urllib.parse import urlparse
 from . import __version__
 from .updater_guard import valid_asset_url, open_trusted, deb_identity_matches
+from .live_feed import find_live_update, open_live, valid_live_asset_url, LiveFeedError
 
 RELEASES_URL = 'https://api.github.com/repos/sudipdasin/office-sanitizer/releases'
 MAX_JSON = 2 * 1024 * 1024
@@ -83,11 +84,37 @@ def _select_update(releases, *, include_prerelease=True):
                                       'digest': digest[7:].lower(), 'size': size}))
     return max(choices, key=lambda item: item[0])[1] if choices else None
 
-def find_update(*, opener=open_trusted, include_prerelease=True):
-    return _select_update(_fetch_releases(opener=opener), include_prerelease=include_prerelease)
+def find_update(*, opener=open_trusted, include_prerelease=True, live_opener=open_live):
+    """Prefer the latest validated release; one provider may be unavailable."""
+    candidates = []
+    failed = 0
+    try:
+        github = _select_update(_fetch_releases(opener=opener), include_prerelease=include_prerelease)
+        if github:
+            candidates.append(github)
+    except UpdateError:
+        failed += 1
+    try:
+        live = find_live_update(installed_version=_current_version(),
+                                include_prerelease=include_prerelease, opener=live_opener)
+        if live:
+            candidates.append(live)
+    except LiveFeedError:
+        failed += 1
+    if candidates:
+        return max(candidates, key=lambda candidate: _release_version(candidate['tag']))
+    if failed == 2:
+        raise UpdateError('Neither trusted release feed is available')
+    return None
 
-def _download_verified(candidate, directory, *, opener=open_trusted):
-    if not valid_asset_url(candidate.get('url'), candidate.get('tag'), candidate.get('name')):
+def _download_verified(candidate, directory, *, opener=None):
+    if candidate.get('source') == 'render':
+        trusted = valid_live_asset_url(candidate.get('url'), candidate.get('tag'), candidate.get('name'))
+        opener = opener or open_live
+    else:
+        trusted = valid_asset_url(candidate.get('url'), candidate.get('tag'), candidate.get('name'))
+        opener = opener or open_trusted
+    if not trusted:
         raise UpdateError('Invalid official release asset identity')
     target = directory / candidate['name']
     if target.exists():
@@ -155,7 +182,7 @@ def main(argv=None):
         return 1
     if not candidate:
         if not args.notify:
-            print('No newer verified Debian GitHub Release available.')
+            print('No newer verified Debian release available from configured sources.')
         return 0
     if args.notify:
         _notify('Office Sanitizer update available',
