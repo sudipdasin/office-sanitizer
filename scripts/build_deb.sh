@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-VERSION="${1:-4.2.0~beta1}"
+VERSION="${1:-4.3.0~beta1}"
 OUT_DIR="${2:-dist}"
 mkdir -p "$OUT_DIR"
 OUT_DIR="$(realpath "$OUT_DIR")"
