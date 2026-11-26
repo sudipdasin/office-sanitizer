@@ -78,3 +78,11 @@
 - Authenticated user-confirmed APT installation; no silent root update.
 - Add 12 updater regression tests. Local source: 76/76 tests passed; Debian extraction, CLI and GUI smoke tests passed.
 - Pending: publish a GitHub Release asset or signed APT repository to supply future upgrades.
+
+
+## 4.3.0b1 — 2026-11-26
+- Security: restrict updater to release-matched Debian assets, reject untrusted redirect origins, and check downloaded Debian Package/Version/Architecture before asking APT to install.
+- Batch: reject symlinked source or output paths, case-insensitive duplicate output names and non-directory output roots.
+- Offline release: reproducible allowlisted source ZIP, wheel, XFCE DEB, SHA256SUMS and automated local checks without CI.
+- Local assembled-source result: **99/99 tests passed**; wheel, DEB and ZIP checked; virtual-X11 GUI startup smoke passed.
+- Release limitation: local source assembly may differ from the exact GitHub tree; do not claim hosted CI verification or security certification.
