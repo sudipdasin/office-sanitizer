@@ -13,6 +13,7 @@ import time
 from urllib.request import Request, urlopen
 from urllib.parse import urlparse
 from . import __version__
+from .updater_guard import valid_asset_url, open_trusted, deb_identity_matches
 
 RELEASES_URL = 'https://api.github.com/repos/sudipdasin/office-sanitizer/releases'
 MAX_JSON = 2 * 1024 * 1024
@@ -33,7 +34,7 @@ def _release_version(tag):
 def _current_version():
     return _release_version(__version__) or (0, 0, 0, 0)
 
-def _fetch_releases(*, opener=urlopen):
+def _fetch_releases(*, opener=open_trusted):
     request = Request(RELEASES_URL + '?per_page=30', headers={
         'Accept': 'application/vnd.github+json',
         'User-Agent': 'office-sanitizer-update-checker/' + __version__,
@@ -72,9 +73,7 @@ def _select_update(releases, *, include_prerelease=True):
             if not (isinstance(name, str) and
                     re.fullmatch(r'office-sanitizer_[0-9A-Za-z.+~_-]+_all\.deb', name)):
                 continue
-            parsed = urlparse(uri) if isinstance(uri, str) else None
-            if not (parsed and parsed.scheme == 'https' and parsed.netloc == 'github.com'
-                    and parsed.path.startswith('/sudipdasin/office-sanitizer/releases/download/')):
+            if not valid_asset_url(uri, tag, name):
                 continue
             if not (isinstance(digest, str) and re.fullmatch(r'sha256:[0-9a-fA-F]{64}', digest)):
                 continue
@@ -84,10 +83,12 @@ def _select_update(releases, *, include_prerelease=True):
                                       'digest': digest[7:].lower(), 'size': size}))
     return max(choices, key=lambda item: item[0])[1] if choices else None
 
-def find_update(*, opener=urlopen, include_prerelease=True):
+def find_update(*, opener=open_trusted, include_prerelease=True):
     return _select_update(_fetch_releases(opener=opener), include_prerelease=include_prerelease)
 
-def _download_verified(candidate, directory, *, opener=urlopen):
+def _download_verified(candidate, directory, *, opener=open_trusted):
+    if not valid_asset_url(candidate.get('url'), candidate.get('tag'), candidate.get('name')):
+        raise UpdateError('Invalid official release asset identity')
     target = directory / candidate['name']
     if target.exists():
         raise UpdateError('Update filename collision')
@@ -180,6 +181,9 @@ def main(argv=None):
             package = _download_verified(candidate, root)
         except UpdateError as error:
             print(str(error))
+            return 1
+        if not deb_identity_matches(package, candidate['tag']):
+            print('Debian package identity does not match the selected release')
             return 1
         os.chmod(package, 0o644)
         return subprocess.run(['pkexec', '/usr/bin/apt', 'install', '-y', str(package)],
