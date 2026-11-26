@@ -5,10 +5,13 @@ cd "$(dirname "$0")/.."
 VERSION="$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")"
 printf 'Building XFCE portal for package version: %s\n' "$VERSION"
 DEB_VERSION="$(python - "$VERSION" <<'PY'
-import re,sys
-m=re.fullmatch(r'(\d+\.\d+\.\d+)b(\d+)',sys.argv[1])
-if not m: raise SystemExit('Expected a beta version')
-print(m.group(1)+'~beta'+m.group(2))
+import sys
+version=sys.argv[1].strip()
+base,separator,beta=version.rpartition('b')
+parts=base.split('.')
+if not (separator and len(parts)==3 and all(p.isdecimal() for p in parts) and beta.isdecimal()):
+    raise SystemExit('Invalid beta version metadata: '+repr(version))
+print(base+'~beta'+beta)
 PY
 )"
 OUT="$1"
