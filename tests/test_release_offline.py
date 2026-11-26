@@ -36,3 +36,14 @@ def test_current_release_has_packaging_sources():
     for filename in ('office_sanitizer/updater.py',
                      'scripts/build_deb.sh', 'scripts/release_local.sh', 'tests/test_release_offline.py'):
         assert filename in names
+
+
+def test_symlinked_approved_file_is_not_archived(tmp_path):
+    secret = tmp_path/'private.txt'
+    secret.write_text('NOT_FOR_DISTRIBUTION')
+    (tmp_path/'README.md').symlink_to(secret)
+    archive = tmp_path/'source.zip'
+    create_archive(tmp_path, archive)
+    with zipfile.ZipFile(archive) as z:
+        assert 'README.md' not in z.namelist()
+        assert b'NOT_FOR_DISTRIBUTION' not in archive.read_bytes()
