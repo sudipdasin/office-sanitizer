@@ -2,7 +2,8 @@
 # Render static delivery only: no confidential documents, Actions or CircleCI.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-VERSION="$(python -c 'from office_sanitizer import __version__;print(__version__)')"
+VERSION="$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")"
+printf 'Building XFCE portal for package version: %s\n' "$VERSION"
 DEB_VERSION="$(python - "$VERSION" <<'PY'
 import re,sys
 m=re.fullmatch(r'(\d+\.\d+\.\d+)b(\d+)',sys.argv[1])
