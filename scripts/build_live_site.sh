@@ -19,7 +19,7 @@ python scripts/build_source_archive.py --output "$OUT/downloads/office-sanitizer
 python - "$OUT" "$VERSION" "$DEB_VERSION" <<'PY'
 import hashlib,json,pathlib,sys,zipfile
 root=pathlib.Path(sys.argv[1]); version=sys.argv[2]; debver=sys.argv[3]
-files=sorted(p for p in (root/'downloads').iterdir() if p.is_file())
+files=[root/'downloads'/f'office-sanitizer_{debver}_all.deb', root/'downloads'/f'office-sanitizer-{version}-source.zip', root/'downloads'/f'office_sanitizer-{version}-py3-none-any.whl']
 deb=f'office-sanitizer_{debver}_all.deb'
 source=f'office-sanitizer-{version}-source.zip'
 wheel=f'office_sanitizer-{version}-py3-none-any.whl'
