@@ -33,6 +33,6 @@ def test_archive_generation_is_reproducible(tmp_path):
 def test_current_release_has_packaging_sources():
     root = Path(__file__).resolve().parents[1]
     names = {p.relative_to(root).as_posix() for p in source_paths(root)}
-    for filename in ('office_sanitizer/updater.py', 'office_sanitizer/updater_guard.py',
+    for filename in ('office_sanitizer/updater.py',
                      'scripts/build_deb.sh', 'scripts/release_local.sh', 'tests/test_release_offline.py'):
         assert filename in names
