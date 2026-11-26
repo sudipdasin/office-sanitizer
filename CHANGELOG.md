@@ -86,3 +86,12 @@
 - Offline release: reproducible allowlisted source ZIP, wheel, XFCE DEB, SHA256SUMS and automated local checks without CI.
 - Local assembled-source result: **99/99 tests passed**; wheel, DEB and ZIP checked; virtual-X11 GUI startup smoke passed.
 - Release limitation: local source assembly may differ from the exact GitHub tree; do not claim hosted CI verification or security certification.
+
+
+## 4.3.0b2 — 2026-11-26
+- Deploy independently hosted, static XFCE distribution portal and public versioned Debian/wheel/source downloads.
+- Support Render's tightly validated release manifest as fallback alongside GitHub Releases without invoking GitHub Actions or CircleCI.
+- Require exact HTTPS origin, versioned Debian asset identity, bounded manifest, SHA-256 bytes and authenticated APT flow.
+- Add adversarial manifest, redirect/origin, downgrade and provider-fallback tests; locally assembled source **118/118 tests passed**.
+- Improve reproducible offline wheel building, explicit Python packaging discovery and static artifact checksum verification.
+- Security limitations: unsigned beta; complete content/VBA redaction and disclosure clearance remain unsupported.
