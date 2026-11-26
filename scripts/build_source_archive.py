@@ -12,7 +12,7 @@ EXCLUDED = {'.git', '.pytest_cache', '__pycache__', 'dist', 'build'}
 
 
 def source_paths(root: Path) -> list[Path]:
-    found = [root / item for item in SAFE_FILES if (root / item).is_file()]
+    found = [root / item for item in SAFE_FILES if (root / item).is_file() and not (root / item).is_symlink()]
     for directory in SAFE_ROOTS:
         base = root / directory
         if not base.is_dir():
