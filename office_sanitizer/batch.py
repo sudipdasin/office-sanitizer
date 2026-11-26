@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
+from collections import Counter
 from pathlib import Path
 from typing import Iterable
 
@@ -51,7 +52,13 @@ def process_batch(files: Iterable[str | Path], *, mode: str = 'audit',
     if mode == 'guarded' and output_dir is None:
         raise ValueError('output_dir is required')
     sources = [Path(p) for p in files]
-    duplicates = {p.name for p in sources if sum(x.name == p.name for x in sources) > 1}
+    counts = Counter(p.name.casefold() for p in sources)
+    duplicates = {name for name, count in counts.items() if count > 1}
+    root = Path(output_dir) if mode == 'guarded' else None
+    unsafe_root = bool(root and (
+        (root.exists() and not root.is_dir()) or
+        any(component.is_symlink() for component in (root, *root.parents))
+    ))
     report = []
     for index, src in enumerate(sources, 1):
         if mode == 'audit':
@@ -59,7 +66,13 @@ def process_batch(files: Iterable[str | Path], *, mode: str = 'audit',
             report.append(BatchItem(index, result.status, False, result.findings,
                                     tuple(result.warnings)))
             continue
-        if src.name in duplicates:
+        if src.is_symlink():
+            report.append(BatchItem(index, 'blocked', False, {}, ('source_is_symlink',)))
+            continue
+        if unsafe_root:
+            report.append(BatchItem(index, 'blocked', False, {}, ('unsafe_output_directory',)))
+            continue
+        if src.name.casefold() in duplicates:
             report.append(BatchItem(index, 'blocked', False, {}, ('filename_collision',)))
             continue
         result = guarded_sanitize(src, Path(output_dir) / src.name)
